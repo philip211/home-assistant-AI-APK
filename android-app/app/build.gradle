@@ -1,0 +1,35 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'ru.home.pomoshnik'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'ru.home.pomoshnik'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    // the interface is the same page as the web version
+    sourceSets {
+        main {
+            assets.srcDirs = ['../../приложение']
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

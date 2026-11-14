@@ -1,0 +1,17 @@
+# signing key and its password: never publish
+ключ/
+*.jks
+*.keystore
+пароль.txt
+
+# JDK used for building (hundreds of MB)
+tools/
+
+# APKs go to GitHub Releases, not into the repository
+*.apk
+
+# build output and machine-specific settings
+android-app/.gradle/
+android-app/build/
+android-app/app/build/
+android-app/local.properties

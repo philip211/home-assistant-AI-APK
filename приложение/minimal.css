@@ -1,0 +1,270 @@
+/* Minimal: the tablet as a quiet object in the room, not an app.
+   Light concrete by day, graphite by night (the switch follows sunrise and sunset). Type does the work:
+   one geometric family, a thin clock as the single large element, and one cobalt line that shows the
+   assistant is there. No cards, no glow, no camera picture, no rainbow. */
+
+body.minimal {
+  --bg: #171816;
+  --bg-2: #1b1c1a;
+  --fg: #e3e2dc;
+  --muted: #8a8b85;
+  --dim: #5f605b;
+  --line: rgba(227, 226, 220, .1);
+  --line-hi: rgba(227, 226, 220, .2);
+  --panel: rgba(227, 226, 220, .035);
+  --panel-hi: rgba(227, 226, 220, .06);
+  --sheet: #1d1e1c;
+  --accent: #8592ff;
+  --cyan: var(--accent); --violet: var(--accent); --pink: #d08a82; --amber: #c9a35e;
+  --good: #8fb79a; --warn: #c9a35e; --bad: #d4766d;
+  --font: "Jost", "Onest", system-ui, sans-serif;
+  --mono: "Jost", "Onest", system-ui, sans-serif;
+  --side: 64px;
+  background: var(--bg); color: var(--fg); color-scheme: dark;
+  transition: background-color 1.2s ease;
+}
+body.minimal.light {
+  --bg: #e7e7e2;
+  --bg-2: #dfdfd9;
+  --fg: #1e1f1d;
+  --muted: #6c6e69;
+  --dim: #9c9e98;
+  --line: rgba(30, 31, 29, .12);
+  --line-hi: rgba(30, 31, 29, .24);
+  --panel: rgba(30, 31, 29, .035);
+  --panel-hi: rgba(30, 31, 29, .06);
+  --sheet: #efefea;
+  --accent: #2e45cf;
+  --good: #3f7d55; --bad: #b4473d; --amber: #9a7425; --pink: #a8574e;
+  color-scheme: light;
+}
+
+/* ---------- what goes away ---------- */
+body.minimal .backdrop, body.minimal .edge, body.minimal #camWrap, body.minimal #core, body.minimal .card::before,
+body.minimal .card > .bg, body.minimal #stage > .bg, body.minimal .wlab svg, body.minimal #wClock .wlab, body.minimal #wWx .wlab,
+body.minimal #wxHours, body.minimal #wxHiLo, body.minimal .wrows, body.minimal .wempty, body.minimal #whoPill,
+body.minimal .status .pill:not(button), body.minimal .hello, body.minimal #look, body.minimal #addBtn,
+body.minimal #nowTile, body.minimal #nowText .label, body.minimal #focusScrim, body.minimal #now.empty, body.minimal .ambGlow { display: none !important; }
+
+/* ---------- the frame ---------- */
+body.minimal #app {
+  grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "top" "board" "dock"; gap: 0;
+  padding: 36px var(--side) 40px;
+}
+body.minimal #top { justify-content: flex-end; min-height: 44px; }
+body.minimal .status { gap: 26px; align-items: center; }
+body.minimal .status button.pill { background: none; border: 0; height: auto; padding: 0; gap: 0; font-family: var(--font);
+  font-size: 16px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--dim); }
+body.minimal .status button.pill svg { display: none; }
+body.minimal .status button.pill.on { color: var(--fg); }
+body.minimal #openSettings { background: none; border: 0; width: 44px; margin-right: -12px; color: var(--muted); }
+
+body.minimal #board {
+  gap: 0; grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "clock clock clock" "wx wx wx" "ai ai ai" "now now now" "tasks shop meds";
+}
+body.minimal .card { background: none !important; border: 0 !important; box-shadow: none !important; border-radius: 0; padding: 0;
+  overflow: visible; will-change: auto; transition: opacity .6s var(--ease); }
+body.minimal .card.press:active { transform: none; opacity: .55; }
+
+/* ---------- time: the one large thing ---------- */
+body.minimal #wClock { display: block; padding-top: 40px; }
+body.minimal #clock { font-family: var(--font); font-size: 208px; font-weight: 200; line-height: .86; letter-spacing: -.045em;
+  margin-left: -10px; color: var(--fg); font-variant-numeric: lining-nums; }
+body.minimal #date { margin-top: 26px; font-size: 27px; font-weight: 300; color: var(--fg); letter-spacing: 0; }
+body.minimal #date::first-letter { text-transform: uppercase; }
+body.minimal #clockNext { margin-top: 6px; font-size: 18px; color: var(--muted); }
+body.minimal #clockNext:empty { display: none; }
+
+body.minimal #wWx { display: block; padding-top: 4px; }
+body.minimal .wxMain { display: flex; align-items: baseline; gap: 12px; }
+body.minimal .wxMain .wxIco { width: 22px; height: 22px; stroke-width: 1.5; color: var(--muted); align-self: center; }
+body.minimal #wxTemp { font-size: 27px; font-weight: 300; letter-spacing: 0; color: var(--fg); }
+body.minimal .wxSide { display: flex; gap: 10px; }
+body.minimal #wxCond { font-size: 27px; font-weight: 300; color: var(--muted); }
+
+/* ---------- the assistant: a cobalt line and its words ---------- */
+#presence { display: none; }
+body.minimal #stage { display: block; padding: 76px 0 0; overflow: visible; }
+body.minimal #presence { display: block; width: 56px; height: 2px; background: var(--accent); transform-origin: 0 50%;
+  transition: transform .7s var(--ease), background-color .4s, opacity .4s; opacity: .9; }
+body.minimal[data-state="listening"] #presence { transform: scaleX(4); }
+body.minimal[data-state="thinking"] #presence, body.minimal[data-state="searching"] #presence,
+body.minimal[data-state="looking"] #presence { transform: scaleX(2.4); animation: presenceWait 1.4s ease-in-out infinite; }
+body.minimal[data-state="speaking"] #presence { transform: scaleX(9.5); }
+body.minimal[data-state="error"] #presence { background: var(--bad); }
+@keyframes presenceWait { 50% { opacity: .25; } }
+
+body.minimal .aiText { margin: 0; }
+body.minimal #aState { margin-top: 16px; height: auto; font-family: var(--font); font-size: 16px; font-weight: 400; letter-spacing: 0;
+  text-transform: none; color: var(--muted); }
+body.minimal[data-state] #aState { color: var(--muted); }
+body.minimal #stage #heardRow { margin-top: 22px; font-size: 19px; font-style: normal; color: var(--muted); opacity: 1; }
+body.minimal #stage #sayText { margin-top: 14px; max-width: 610px; font-size: 34px; font-weight: 300; line-height: 1.27;
+  letter-spacing: -.01em; color: var(--fg); text-wrap: pretty; -webkit-line-clamp: 6; }
+body.minimal .metaRow { margin-top: 18px; }
+body.minimal .meta { background: none; border: 0; padding: 0; font-size: 14px; color: var(--dim); }
+
+/* while it listens or talks, the rest of the room steps back */
+body.minimal.ai-focus #wClock, body.minimal.ai-focus #wWx, body.minimal.ai-focus #now,
+body.minimal.ai-focus #wTasks, body.minimal.ai-focus #wShop, body.minimal.ai-focus #wMeds { opacity: .14; }
+body.minimal.ai-focus #stage #sayText { font-size: 40px; line-height: 1.24; -webkit-line-clamp: 9; }
+body.minimal.ai-focus #stage { position: static !important; transform: none !important; }
+
+/* ---------- now: one line, only when there is something ---------- */
+body.minimal #now { display: flex; align-items: baseline; gap: 14px; padding: 0 0 26px; min-height: 0; }
+body.minimal #nowText { min-width: 0; }
+body.minimal #nowTitle { font-size: 20px; font-weight: 400; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.minimal #nowSub { font-size: 16px; color: var(--muted); margin-top: 2px; }
+body.minimal #timerChip, body.minimal #musicChip { background: none; border: 0; padding: 0; gap: 14px; margin-left: auto; align-items: center; }
+body.minimal #timerText { font-family: var(--font); font-size: 26px; font-weight: 300; }
+body.minimal #timerLabel, body.minimal #musicText { font-size: 18px; color: var(--muted); }
+body.minimal #musicChip .eq i { background: var(--accent); }
+body.minimal #now .round { background: none; border: 1px solid var(--line-hi); }
+
+/* ---------- the three lists: words and numbers on one hairline ---------- */
+body.minimal .w[style*="grid-area:tasks"], body.minimal .w[style*="grid-area:shop"], body.minimal .w[style*="grid-area:meds"] { border-top: 1px solid var(--line); }
+body.minimal .wl { display: block; padding: 22px 0 6px; }
+body.minimal .wl .wlab { display: inline-flex; align-items: baseline; gap: 9px; margin: 0; font-family: var(--font); font-size: 19px;
+  font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); }
+body.minimal .wl .wlab b { font-size: 19px; font-weight: 500; color: var(--fg); margin: 0; padding: 0; background: none; border: 0; }
+body.minimal .wl.bump { animation: none; }
+
+/* ---------- the microphone: a hairline circle ---------- */
+body.minimal #dock { grid-template-columns: 1fr auto 1fr; padding-top: 26px; }
+body.minimal #mic { width: 76px; height: 76px; background: none; border: 1px solid var(--line-hi); box-shadow: none; color: var(--fg);
+  transition: border-color .3s, color .3s; }
+body.minimal #mic::before { display: none; }
+body.minimal #mic::after { border: 1px solid var(--accent); }
+body.minimal #mic svg.i { width: 28px; height: 28px; stroke-width: 1.4; }
+body.minimal #mic.listening { background: none; border-color: var(--accent); color: var(--accent); }
+
+/* ---------- the lists panel: a quiet full page ---------- */
+body.minimal #tasksCard { position: fixed; inset: 0; z-index: 40; top: 0; bottom: 0; left: 0; right: 0;
+  background: var(--bg); padding: 40px var(--side) 40px; }
+body.minimal #tasksCard > .bg { display: none; }
+body.minimal #tasksHead { align-items: center; gap: 20px; padding: 0 0 18px; border-bottom: 1px solid var(--line); }
+body.minimal .tabs { background: none; border: 0; padding: 0; gap: 26px; flex: 1; }
+body.minimal .tabs button { height: auto; padding: 0; border-radius: 0; background: none !important; font-family: var(--font);
+  font-size: 26px; font-weight: 300; letter-spacing: 0; text-transform: none; color: var(--dim); }
+body.minimal .tabs button.on { color: var(--fg); }
+body.minimal .tabs button i { font-style: normal; font-size: 15px; color: var(--muted); background: none; }
+body.minimal #taskCount { font-family: var(--font); font-size: 15px; letter-spacing: 0; color: var(--muted); }
+body.minimal #panelClose, body.minimal .round { background: none; border: 1px solid var(--line-hi); color: var(--fg); }
+body.minimal .mini { background: none; border: 1px solid var(--line-hi); color: var(--fg); font-family: var(--font); }
+body.minimal #tasks li, body.minimal #shop li, body.minimal #meds li { border-bottom: 1px solid var(--line); padding: 16px 0; }
+body.minimal #tasks li.ghead { font-family: var(--font); font-size: 15px; letter-spacing: 0; text-transform: none; color: var(--muted); padding-top: 22px; }
+body.minimal .when { background: none !important; border: 0 !important; padding: 0; height: auto; font-family: var(--font); font-size: 17px;
+  font-weight: 400; color: var(--muted); }
+body.minimal .when svg.i { display: none; }
+body.minimal li.due .when { color: var(--bad); }
+body.minimal .txt { font-size: 21px; font-weight: 300; }
+body.minimal .tick { border: 1px solid var(--line-hi); color: var(--bg); }
+body.minimal li.done .tick { background: var(--fg); border-color: var(--fg); box-shadow: none; }
+body.minimal #emptyTasks svg.i, body.minimal #emptyShop svg.i, body.minimal #emptyMeds svg.i { display: none; }
+body.minimal #emptyTasks b, body.minimal #emptyShop b, body.minimal #emptyMeds b { font-size: 24px; font-weight: 300; }
+
+/* ---------- sheets (settings, recipe, medicine) in the same voice ---------- */
+body.minimal .sheet { background: var(--sheet); border-top: 1px solid var(--line); border-radius: 0; box-shadow: none; }
+body.minimal .scrim { background: rgba(10, 10, 9, .45); }
+body.minimal .sheet h3 { font-weight: 300; font-size: 32px; letter-spacing: -.01em; }
+body.minimal .group { background: none; border: 0; border-top: 1px solid var(--line); border-radius: 0; }
+body.minimal .rowi { border-bottom: 1px solid var(--line); }
+body.minimal .ico { background: none !important; color: var(--muted); }
+body.minimal .label { font-family: var(--font); font-size: 14px; letter-spacing: 0; text-transform: none; color: var(--muted); }
+body.minimal .btn.primary { background: var(--fg); color: var(--bg); box-shadow: none; }
+body.minimal .grab { background: var(--line-hi); }
+body.minimal #toast { background: var(--fg); color: var(--bg); border: 0; box-shadow: none; }
+body.minimal #app { transition: opacity .5s var(--ease); }
+body.minimal.sheet-open #app { transform: none; border-radius: 0; opacity: .35; }
+
+/* ---------- the idle screen: the board without the board ---------- */
+body.minimal #ambient { background: var(--bg); color: var(--fg); align-items: flex-start; padding: 0 var(--side); }
+body.minimal #ambTime { font-family: var(--font); font-size: 232px; font-weight: 200; letter-spacing: -.045em; margin-left: -12px; color: var(--fg); }
+body.minimal #ambDate { font-size: 30px; font-weight: 300; color: var(--fg); margin-top: 28px; }
+body.minimal #ambDate::first-letter { text-transform: uppercase; }
+body.minimal #ambWx { justify-content: flex-start; }
+body.minimal #ambTemp { font-weight: 300; }
+body.minimal #ambCond, body.minimal #ambHiLo, body.minimal #ambHint { color: var(--muted); }
+body.minimal .ambChip { background: none; border: 0; padding: 0; }
+body.minimal #ambient.night #ambIn { opacity: .5; }
+
+/* ---------- specificity: the studio rules name two ids, so these do too ---------- */
+body.minimal #wClock #clock { font-size: 208px; font-weight: 200; line-height: .86; letter-spacing: -.045em; margin: 0 0 0 -10px; }
+body.minimal #wClock #date { font-size: 27px; font-weight: 300; margin-top: 26px; color: var(--fg); }
+body.minimal #wClock { padding: 40px 0 0; }
+body.minimal #wWx { padding: 6px 0 0; }
+body.minimal #wWx .wxMain { margin-top: 0; justify-content: flex-start; }
+body.minimal #wWx .wxIco { width: 24px !important; height: 24px !important; stroke-width: 1.4 !important; }
+body.minimal #wWx #wxTemp { font-size: 27px; font-weight: 300; letter-spacing: 0; line-height: 1.2; }
+body.minimal #wWx .wxSide { margin-left: 0; text-align: left; }
+body.minimal #stage, body.minimal.ai-focus #stage { display: block; height: auto; text-align: left; align-items: initial;
+  padding: 76px 0 0; margin: 0; background: none; border: 0; }
+body.minimal #mic { grid-column: 2; }
+body.minimal #quietBtn.on { background: none; border: 0; color: var(--amber); }
+body.minimal.guest #now { visibility: hidden; }
+body.minimal #wWx #wxCond::first-letter { text-transform: none; }
+body.minimal .grp-title { font-family: var(--font); font-size: 15px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); }
+body.minimal .switch input:checked + span { background: var(--accent); }
+body.minimal .field, body.minimal input.num, body.minimal select.num { background: transparent; border: 1px solid var(--line-hi); border-radius: 10px; font-family: var(--font); }
+body.minimal .seg, body.minimal .seg button { font-family: var(--font); }
+body.minimal #stage #sayText .w { animation-duration: .35s; }
+body.minimal .aiText, body.minimal.ai-focus .aiText { align-items: flex-start; text-align: left; max-width: none; margin-top: 0; padding-right: 0; }
+body.minimal.ai-focus #stage .metaRow { justify-content: flex-start; }
+body.minimal.ai-focus #stage #sayText { text-wrap: pretty; }
+body.minimal #seenRow { display: none !important; }
+
+/* ---------- the camera as a small round window in the corner (can be turned off in settings) ---------- */
+body.minimal.campeek #stage #camWrap, body.minimal.campeek.ai-focus #stage #camWrap { display: block !important; position: fixed; z-index: 5; top: 34px; left: var(--side); right: auto;
+  width: 48px; height: 48px; margin: 0; border-radius: 50%; overflow: hidden; border: 1px solid var(--line-hi); box-shadow: none; background: var(--bg-2); }
+body.minimal.campeek #camWrap .vf, body.minimal.campeek #camBadge, body.minimal.campeek #scan, body.minimal.campeek #camOff span { display: none !important; }
+body.minimal.campeek #camWrap #cam { width: 100%; height: 100%; object-fit: cover; }
+body.minimal.campeek.guest #camWrap { border-color: var(--amber); }
+
+/* ---------- the kitchen: a fourth word on the bottom line; the studio board keeps it in the panel only ---------- */
+body:not(.minimal) .w[style*="grid-area:kitchen"] { display: none; }
+body.minimal #board { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-areas: "clock clock clock clock" "wx wx wx wx" "ai ai ai ai" "now now now now" "tasks shop meds kitchen"; }
+body.minimal .w[style*="grid-area:kitchen"] { border-top: 1px solid var(--line); }
+body.minimal #wKitchen.warn .wlab b { color: var(--amber); }
+body.minimal.ai-focus #wKitchen { opacity: .14; }
+body.minimal .tabs { gap: 22px; }
+body.minimal .tabs button { font-size: 24px; }
+#pantry { list-style: none; margin: 6px 0 0; padding: 0 12px 0 0; overflow-y: auto; min-height: 0; flex: 1; scrollbar-width: none; }
+#pantry li { display: grid; grid-template-columns: 70px minmax(0, 1fr) 38px; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+#pantry li.ghead { display: block; padding: 18px 0 4px; border-bottom: 0; font-size: 15px; color: var(--muted); }
+#pantry .nm { display: block; font-size: 20px; font-weight: 300; }
+#pantry small { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+#pantry li.due small { color: var(--amber); }
+#pantry li.spoiled small { color: var(--bad); }
+#emptyPantry { flex: 1; display: grid; place-items: center; align-content: center; gap: 10px; text-align: center; color: var(--muted); padding: 20px; font-size: 15px; }
+#emptyPantry b { color: var(--fg); font-weight: 300; font-size: 24px; }
+body.minimal #emptyPantry svg.i { display: none; }
+
+/* ---------- a found recipe: servings, time, source, then the ingredients on the first step ---------- */
+#recMeta { color: var(--muted); font-size: 15px; margin: -8px 0 14px; white-space: pre; }
+#recIngr { list-style: none; margin: 0 0 18px; padding: 0; columns: 2; column-gap: 32px; max-height: 38vh; overflow-y: auto; }
+#recIngr li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); break-inside: avoid; font-size: 17px; }
+#recIngr .am { color: var(--muted); white-space: nowrap; }
+#recIngr li.miss .nm { color: var(--amber); }
+body.minimal #stepNum { font-family: var(--font); letter-spacing: 0; text-transform: none; font-size: 15px; }
+body.minimal #stepText { font-weight: 300; font-size: 30px; }
+body.minimal #recipeSheet .tile { display: none; }
+
+/* ---------- a recipe being dictated: everything so far, numbered ---------- */
+#recDraft { margin: 4px 0 8px; padding-left: 28px; max-height: 40vh; overflow-y: auto; }
+#recDraft li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 19px; font-weight: 300; line-height: 1.35; }
+#recDraft li::marker { color: var(--muted); }
+
+/* ---------- the self-check report ---------- */
+#selfSum { color: var(--muted); font-size: 15px; margin: -8px 0 12px; }
+#selfList { list-style: none; margin: 0 0 16px; padding: 0; max-height: 62vh; overflow-y: auto; }
+#selfList li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: baseline; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+#selfList li.ghead { display: block; padding: 16px 0 4px; border-bottom: 0; font-size: 15px; color: var(--muted); }
+#selfList .mk { font-weight: 500; text-align: center; }
+#selfList .nm { display: block; font-size: 18px; }
+#selfList small { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; overflow-wrap: anywhere; }
+#selfList .ms { color: var(--dim); font-size: 13px; white-space: nowrap; }
+#selfList li.st-ok .mk { color: var(--good); }
+#selfList li.st-warn .mk, #selfList li.st-warn small { color: var(--amber); }
+#selfList li.st-fail .mk, #selfList li.st-fail small { color: var(--bad); }
